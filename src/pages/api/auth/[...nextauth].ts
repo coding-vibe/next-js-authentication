@@ -1,3 +1,4 @@
+import routes from '@/constants/routes';
 import axios from 'axios';
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
@@ -8,6 +9,9 @@ interface LoginResponse {
 }
 
 export const authOptions = {
+  pages: {
+    signIn: routes.SIGN_IN,
+  },
   providers: [
     CredentialsProvider({
       credentials: {
