@@ -1,14 +1,15 @@
-import routes from '@/constants/routes';
-import axios from 'axios';
+import type { AuthOptions } from 'next-auth';
 import NextAuth from 'next-auth';
+import axios from 'axios';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import routes from '@/constants/routes';
 
 interface LoginResponse {
   access: string;
   refresh: string;
 }
 
-export const authOptions = {
+export const authOptions: AuthOptions = {
   pages: {
     signIn: routes.SIGN_IN,
   },
@@ -28,7 +29,7 @@ export const authOptions = {
           const { email } = credentials;
 
           const {
-            data: { access },
+            data: { access, refresh },
           } = await axios.post<LoginResponse>(
             `${process.env.NEXT_PUBLIC_API_HOST}/users/login/`,
             credentials,
@@ -40,13 +41,27 @@ export const authOptions = {
             },
           );
 
-          return user;
+          return { ...user, access, refresh };
         } catch {
           return null;
         }
       },
     }),
   ],
+  callbacks: {
+    jwt({ token, user }) {
+      if (user) {
+        return { ...token, user };
+      }
+
+      return token;
+    },
+    session({ session, token }) {
+      session.user = token.user;
+
+      return session;
+    },
+  },
 };
 
 export default NextAuth(authOptions);
