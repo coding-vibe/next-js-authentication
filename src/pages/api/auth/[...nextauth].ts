@@ -1,8 +1,8 @@
 import type { AuthOptions } from 'next-auth';
 import NextAuth from 'next-auth';
-import axios from 'axios';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import routes from '@/constants/routes';
+import APIClient from '@/APIClient';
 
 interface LoginResponse {
   access: string;
@@ -30,16 +30,10 @@ export const authOptions: AuthOptions = {
 
           const {
             data: { access, refresh },
-          } = await axios.post<LoginResponse>(
-            `${process.env.NEXT_PUBLIC_API_HOST}/users/login/`,
-            credentials,
-          );
-          const { data: user } = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_HOST}/users/${email}/`,
-            {
-              headers: { Authorization: `Bearer ${access}` },
-            },
-          );
+          } = await APIClient.post<LoginResponse>('/users/login/', credentials);
+          const { data: user } = await APIClient.get(`/users/${email}/`, {
+            headers: { Authorization: `Bearer ${access}` },
+          });
 
           return { ...user, access, refresh };
         } catch {
