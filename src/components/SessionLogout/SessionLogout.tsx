@@ -7,7 +7,7 @@ import useAPIClient from '@/hooks/useAPIClient';
 const UNAUTHORIZED_STATUS_CODE = 401;
 
 const SessionLogout: FC = () => {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const APIClient = useAPIClient();
 
   useEffect(() => {
@@ -28,8 +28,12 @@ const SessionLogout: FC = () => {
           const { data: refreshResponse } = await APIClient.post('/users/refresh/', { refresh });
 
           if (session) {
-            session.user.access = refreshResponse.access;
-            session.user.refresh = refreshResponse.refresh;
+            await update({
+              user: {
+                access: refreshResponse.access,
+                refresh: refreshResponse.refresh,
+              }
+            })
           }
 
           return APIClient(requestConfig);
