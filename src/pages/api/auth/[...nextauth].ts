@@ -43,9 +43,13 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    jwt({ token, user, trigger, session }) {
       if (user) {
         return { ...token, user };
+      }
+
+      if (trigger === 'update') {
+        return { ...token, ...session.user };
       }
 
       return token;
