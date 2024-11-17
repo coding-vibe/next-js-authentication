@@ -16,7 +16,11 @@ const SessionLogout: FC = () => {
       async (error) => {
         const requestConfig = error.config;
 
-        if (error.response.data.error.code === UNAUTHORIZED_STATUS_CODE && !requestConfig.sent) {
+        if (
+          error.response.status === UNAUTHORIZED_STATUS_CODE &&
+          !requestConfig.sent &&
+          requestConfig.url !== '/users/refresh/'
+        ) {
           requestConfig.sent = true;
 
           const refresh = session?.user.refresh;
@@ -32,8 +36,8 @@ const SessionLogout: FC = () => {
               user: {
                 access: refreshResponse.access,
                 refresh: refreshResponse.refresh,
-              }
-            })
+              },
+            });
           }
 
           return APIClient(requestConfig);
