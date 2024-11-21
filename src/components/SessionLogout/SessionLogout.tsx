@@ -40,7 +40,13 @@ const SessionLogout: FC = () => {
             });
           }
 
-          return APIClient(requestConfig);
+          return APIClient({
+            ...requestConfig,
+            headers: {
+              ...requestConfig.headers,
+              Authorization: `Bearer ${refreshResponse.access}`,
+            },
+          });
         }
 
         return Promise.reject(error);
